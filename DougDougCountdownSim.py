@@ -1,0 +1,151 @@
+import random
+
+fastest_success = 200000.0
+slowest_success = 0.0
+fastest_failure = 200000.0
+slowest_failure = 0.0
+loop_total = 0.0
+loop_success = 200000.0
+closest_loop = 0
+loop_result = []
+bee_result = []
+
+def time_converter(x):
+    # Used to convert the important times into a more readable format.
+    years = int(x % 31536000)
+    months = int((x % 31536000) // 2592000)
+    days = int((x % 2592000)// 86400)
+    hours = int((x % 86400) // 3600)
+    minutes = int((x % 3600) // 60)
+    seconds = round((x % 60), 3)
+
+    if years > 0:
+        return f"{years} years, {months} months, {days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
+    elif months > 0:
+        return f"{months} months, {days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
+    elif days > 0:
+        return f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
+    elif hours > 0:
+        return f"{hours} hours, {minutes} minutes, {seconds} seconds"
+    elif minutes > 0:
+        return f"{minutes} minutes, {seconds} seconds"
+    else:
+        return f"{seconds} seconds"
+
+def countdown():
+    # Simulates the actual countdown and returns the time it took to complete and the number of times Bee Mode was triggered.
+    ticks = 600 # The time left on the timer
+    global time_passed
+    global bee_counter
+    bee_counter = 0 # The number of times Bee Mode was triggered
+    time_passed = 0.0 # The actual time that has passed in the simulation
+    tick_time_ratio = 1.0 # The ratio of time passed to ticks.
+
+    while ticks > 0:
+        randomizer = random.randint(1, 101)
+        if randomizer <= 5:
+            # Ticks increase of 1
+            ticks += 1
+            time_passed += tick_time_ratio
+        elif randomizer <= 6:
+            # Ticks increase of 60
+            ticks += 60
+            time_passed += tick_time_ratio
+        elif randomizer <= 7:
+            # Ticks decrease of 60
+            ticks -= 60
+            time_passed += tick_time_ratio
+        elif randomizer <= 12:
+            # Time increases by 5
+            time_passed += tick_time_ratio * 5
+        elif randomizer <= 13:
+            # Ticks doubles
+            ticks = ticks * 2
+            time_passed += tick_time_ratio
+        elif randomizer <= 14:
+            # Ticks halves
+            ticks = ticks / 2
+            time_passed += tick_time_ratio
+        elif randomizer <= 15:
+            # Ticks are converted to minutes and seconds, then the values are flipped and converted back.
+            current_min = ticks // 60
+            current_sec = ticks % 60
+            ticks = (current_sec * 60) + current_min
+            time_passed += tick_time_ratio
+        elif randomizer <= 16:
+            # Ticks are rounded to the nearest minute
+            ticks = round(ticks / 60) * 60
+            time_passed += tick_time_ratio
+        elif randomizer == 17:
+            # Represents the timer moving, which is not simulated here.
+            time_passed += tick_time_ratio
+        elif randomizer <= 18:
+            # Ratio of ticks to time is halved
+            tick_time_ratio /= 2
+            time_passed += tick_time_ratio
+        elif randomizer <= 19:
+            # Ratio of ticks to time is doubled
+            tick_time_ratio *= 2
+            time_passed += tick_time_ratio
+        elif randomizer == 20:
+            # Bee Mode is triggered
+            bee_counter += 1
+            time_passed += tick_time_ratio
+        else:
+            # Ticks decreases by 1
+            ticks -= 1
+            time_passed += tick_time_ratio
+    
+    # Returns the time taken for ticks to reach zero, along with the number of times Bee Mode was triggered.
+    return time_passed, bee_counter
+
+# Prompts user for amount of countdowns to simulate
+loop_count = int(input("How many countdowns do you want to simulate? "))
+
+# Loops through the countdown function for the amount of times specified by the user, and stores the results in a pair of lists.
+for i in range(loop_count):
+    loop_time, bee_count = countdown()
+    
+    print(f"Loop {i + 1}: Countdown completed in {loop_time:.2f} seconds. ")
+
+    loop_result.append(loop_time)
+    bee_result.append(bee_count)
+
+# Loops through the results to calculate the results 
+for j in range(len(loop_result)):
+    # Gets the total time of all countdowns
+    loop_total += loop_result[j]
+
+    # Determines the fastest countdown time
+    if loop_result[j] < fastest_success:
+        fastest_success = loop_result[j]
+        fastest_loop = j
+
+    # Determines the slowest countdown time
+    elif loop_result[j] > slowest_success:
+        slowest_success = loop_result[j]
+        slowest_loop = j
+
+    # Determines the countdown that is closest to 10 minutes (600 seconds)
+    if abs(loop_result[j] - 600) < loop_success:
+        loop_success = abs(loop_result[j] - 600)
+        closest_loop = j
+
+# Calculates the average countdown time and bees collected, then converts the important times into a more readable format.
+loop_average = round((loop_total / len(loop_result)), 3)
+bee_average = round((sum(bee_result) / len(bee_result)), 3)
+loop_success = time_converter(loop_result[closest_loop])
+fastest_success = time_converter(fastest_success)
+slowest_success = time_converter(slowest_success)
+loop_average = time_converter(loop_average)
+
+# Prints the results of the simulation to the console.
+print(f"\nTotal countdowns simulated: {loop_count}")
+
+print(f"\nFastest successful countdown: Loop {fastest_loop + 1} ({fastest_success})")
+print(f"Slowest successful countdown: Loop {slowest_loop + 1} ({slowest_success})")
+print(f"Average countdown time: {loop_average}")
+print(f"Closest countdown to 10 minutes: Loop {closest_loop + 1} ({loop_result[closest_loop]:.2f} seconds)")
+
+print(f"\nAverage bees collected: {bee_average:.2f}")
+print(f"Total bees collected: {sum(bee_result)}")

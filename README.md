@@ -1,0 +1,2 @@
+This is a simply python program that simulates how long it takes for the timer from Doug's recent video to actually reach zero. This follows the original iteration of the timer but people should be able to easily adjust the odds for other versions of the timer.
+When run, the program will prompt for the number of times you want the simulation to run. Input the number you want, hit enter, and the program will handle the rest.

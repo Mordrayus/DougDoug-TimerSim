@@ -1,4 +1,5 @@
 import random
+import statistics
 
 fastest_success = 200000.0
 slowest_success = 0.0
@@ -111,41 +112,37 @@ for i in range(loop_count):
     loop_result.append(loop_time)
     bee_result.append(bee_count)
 
-# Loops through the results to calculate the results 
+# Determines the countdown that is closest to 10 minutes (600 seconds)
 for j in range(len(loop_result)):
-    # Gets the total time of all countdowns
-    loop_total += loop_result[j]
-
-    # Determines the fastest countdown time
-    if loop_result[j] < fastest_success:
-        fastest_success = loop_result[j]
-        fastest_loop = j
-
-    # Determines the slowest countdown time
-    elif loop_result[j] > slowest_success:
-        slowest_success = loop_result[j]
-        slowest_loop = j
-
-    # Determines the countdown that is closest to 10 minutes (600 seconds)
     if abs(loop_result[j] - 600) < loop_success:
         loop_success = abs(loop_result[j] - 600)
         closest_loop = j
 
-# Calculates the average countdown time and bees collected, then converts the important times into a more readable format.
-loop_average = round((loop_total / len(loop_result)), 3)
-bee_average = round((sum(bee_result) / len(bee_result)), 3)
+# Calculates a bunch of math stuff and converts the important times into a more readable format.
 loop_success = time_converter(loop_result[closest_loop])
-fastest_success = time_converter(fastest_success)
-slowest_success = time_converter(slowest_success)
-loop_average = time_converter(loop_average)
+fastest_success = time_converter(min(loop_result))
+slowest_success = time_converter(max(loop_result))
+loop_average = time_converter(statistics.mean(loop_result))
+loop_median = time_converter(statistics.median(loop_result))
+loop_stdev = time_converter(statistics.stdev(loop_result))
+loop_variance = time_converter(statistics.variance(loop_result))
+loop_range = time_converter(max(loop_result) - min(loop_result))
+loop_mode = time_converter(statistics.mode(loop_result))
+bee_average = statistics.mean(bee_result)
 
 # Prints the results of the simulation to the console.
 print(f"\nTotal countdowns simulated: {loop_count}")
 
-print(f"\nFastest successful countdown: Loop {fastest_loop + 1} ({fastest_success})")
-print(f"Slowest successful countdown: Loop {slowest_loop + 1} ({slowest_success})")
-print(f"Average countdown time: {loop_average}")
+print(f"\nFastest successful countdown: Loop {loop_result.index(min(loop_result)) + 1} ({fastest_success})")
+print(f"Slowest successful countdown: Loop {loop_result.index(max(loop_result)) + 1} ({slowest_success})")
 print(f"Closest countdown to 10 minutes: Loop {closest_loop + 1} ({loop_result[closest_loop]:.2f} seconds)")
+
+print(f"\nAverage countdown time: {loop_average}")
+print(f"Median countdown time: {loop_median}")
+print(f"Standard deviation of countdown times: {loop_stdev}")
+print(f"Variance of countdown times: {loop_variance}")
+print(f"Range of countdown times: {loop_range}")
+print(f"Mode of countdown times: {loop_mode}")
 
 print(f"\nAverage bees collected: {bee_average:.2f}")
 print(f"Total bees collected: {sum(bee_result)}")

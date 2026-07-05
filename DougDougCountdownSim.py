@@ -1,5 +1,7 @@
 import random
 import statistics
+import matplotlib.pyplot as plt
+import numpy as np
 
 fastest_success = 200000.0
 slowest_success = 0.0
@@ -30,6 +32,27 @@ def time_converter(x):
         return f"{minutes} minutes, {seconds} seconds"
     else:
         return f"{seconds} seconds"
+
+def generate_time_labels(max_value):
+    # Generate dynamic time labels based on the maximum value in the data
+    time_scales = [
+        (1.0, '1s'), (10.0, '10s'), (60.0, '1m'), (600.0, '10m'), (3600.0, '1h'), (36000.0, '10h'),
+        (86400.0, '1d'), (604800.0, '1w'), (2592000.0, '1mo'), (31536000.0, '1y'),
+        (315360000.0, '10y'), (3153600000.0, '100y'), (31536000000.0, '1ky'),
+        (315360000000.0, '10ky'), (3153600000000.0, '100ky'), (31536000000000.0, '1my'),
+        (31536000000000000.0, '1by'), (31536000000000000000.0, '1ty'),
+        (31536000000000000000000.0, '1qay'), (31536000000000000000000000.0, '1quiy')
+    ]
+    
+    # Filter scales that are within the data range
+    time_ticks = []
+    time_labels = []
+    for value, label in time_scales:
+        if value <= max_value:
+            time_ticks.append(float(value))
+            time_labels.append(label)
+    
+    return time_ticks, time_labels
 
 def countdown():
     # Simulates the actual countdown and returns the time it took to complete and the number of times Bee Mode was triggered.
@@ -154,3 +177,34 @@ print(f"Mode of countdown times: {loop_mode}")
 
 print(f"\nAverage bees collected: {bee_average:.2f}")
 print(f"Total bees collected: {sum(bee_result)}")
+
+# Create histogram of countdown times (\/ Mostly AI-generated code \/)
+plt.figure(figsize=(10, 6))
+# Use logarithmically spaced bins for better distribution with log scale
+log_bins = np.logspace(np.log10(min(loop_result)), np.log10(max(loop_result)), 50)
+n, bins, patches = plt.hist(loop_result, bins=log_bins, color='blue', edgecolor='black', alpha=0.7)
+
+# Find the peak (bin with highest frequency)
+peak_index = np.argmax(n)
+peak_bin_center = (bins[peak_index] + bins[peak_index + 1]) / 2
+
+plt.xlabel('Countdown Time (seconds)')
+plt.ylabel('Frequency')
+plt.title('Distribution of Countdown Times (Log Scale)')
+plt.xscale('log')
+min_val = loop_result[fastest_loop]
+max_val = loop_result[slowest_loop]
+median_val = statistics.median(loop_result)
+plt.axvline(median_val, color='green', linestyle='--', linewidth=2, label=f'Median: {loop_median}')
+plt.axvline(min_val, color='blue', linestyle='--', linewidth=2, label=f'Minimum: {fastest_success}')
+plt.axvline(max_val, color='red', linestyle='--', linewidth=2, label=f'Maximum: {slowest_success}')
+plt.axvline(peak_bin_center, color='purple', linestyle='--', linewidth=2, label=f'Peak: {time_converter(peak_bin_center)}')
+plt.legend()
+plt.grid(axis='y', alpha=0.3)
+
+# Generate and apply custom x-axis labels dynamically based on data range
+time_ticks, time_labels = generate_time_labels(max(loop_result))
+plt.xticks(time_ticks, time_labels, rotation=45, ha='right')
+
+plt.tight_layout()
+plt.show()

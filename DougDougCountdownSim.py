@@ -3,8 +3,6 @@ import statistics
 
 fastest_success = 200000.0
 slowest_success = 0.0
-fastest_failure = 200000.0
-slowest_failure = 0.0
 loop_total = 0.0
 loop_success = 200000.0
 closest_loop = 0
@@ -13,7 +11,7 @@ bee_result = []
 
 def time_converter(x):
     # Used to convert the important times into a more readable format.
-    years = int(x % 31536000)
+    years = int(x // 31536000)
     months = int((x % 31536000) // 2592000)
     days = int((x % 2592000)// 86400)
     hours = int((x % 86400) // 3600)
@@ -117,30 +115,40 @@ for j in range(len(loop_result)):
     if abs(loop_result[j] - 600) < loop_success:
         loop_success = abs(loop_result[j] - 600)
         closest_loop = j
+        print(f"Loop {j + 1} is the closest countdown to 10 minutes with a time of {loop_result[j]:.2f} seconds.")
+
+    if loop_result[j] < fastest_success:
+        fastest_success = loop_result[j]
+        fastest_loop = j
+        print(f"Loop {j + 1} is the fastest successful countdown with a time of {loop_result[j]:.2f} seconds.")
+
+    elif loop_result[j] > slowest_success:
+        slowest_success = loop_result[j]
+        slowest_loop = j
+        print(f"Loop {j + 1} is the slowest successful countdown with a time of {loop_result[j]:.2f} seconds.")
 
 # Calculates a bunch of math stuff and converts the important times into a more readable format.
 loop_success = time_converter(loop_result[closest_loop])
-fastest_success = time_converter(min(loop_result))
-slowest_success = time_converter(max(loop_result))
 loop_average = time_converter(statistics.mean(loop_result))
 loop_median = time_converter(statistics.median(loop_result))
 loop_stdev = time_converter(statistics.stdev(loop_result))
-loop_variance = time_converter(statistics.variance(loop_result))
 loop_range = time_converter(max(loop_result) - min(loop_result))
 loop_mode = time_converter(statistics.mode(loop_result))
 bee_average = statistics.mean(bee_result)
+fastest_success = time_converter(fastest_success)
+slowest_success = time_converter(slowest_success)
+
 
 # Prints the results of the simulation to the console.
 print(f"\nTotal countdowns simulated: {loop_count}")
 
-print(f"\nFastest successful countdown: Loop {loop_result.index(min(loop_result)) + 1} ({fastest_success})")
-print(f"Slowest successful countdown: Loop {loop_result.index(max(loop_result)) + 1} ({slowest_success})")
-print(f"Closest countdown to 10 minutes: Loop {closest_loop + 1} ({loop_result[closest_loop]:.2f} seconds)")
+print(f"\nFastest successful countdown: Loop {fastest_loop + 1} ({fastest_success})")
+print(f"Slowest successful countdown: Loop {slowest_loop + 1} ({slowest_success})")
+print(f"Closest countdown to 10 minutes: Loop {closest_loop + 1} ({loop_success})")
 
 print(f"\nAverage countdown time: {loop_average}")
 print(f"Median countdown time: {loop_median}")
 print(f"Standard deviation of countdown times: {loop_stdev}")
-print(f"Variance of countdown times: {loop_variance}")
 print(f"Range of countdown times: {loop_range}")
 print(f"Mode of countdown times: {loop_mode}")
 
